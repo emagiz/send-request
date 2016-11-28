@@ -121,10 +121,15 @@ define([
 
             if (this.requestData || this.staticRequestData) {
                 this.staticContentType && xhr.setRequestHeader("Content-Type", this.staticContentType);
-                if (requestData)    {
-                    xhr.send(this.contextObj.get(requestData));
-                } if (staticRequestData) {
-                    xhr.send(staticRequestData);
+
+                if (this.requestData)    {
+                    var data = this.contextObj.get(this.requestData);
+                    if (data)   {
+                        xhr.send(data);
+                    }
+                }
+                if (this.staticRequestData) {
+                    xhr.send(this.staticRequestData);
                 }
             } else {
                 xhr.send();
