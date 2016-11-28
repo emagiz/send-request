@@ -59,6 +59,16 @@ define([
         _alertDiv: null,
         _readOnly: false,
 
+        // Widget variables
+        entity: null,
+        staticUrl : null,
+        staticRequestData : null,
+        requestData : null,
+        responseData : null,
+        staticContentType : null,
+        staticAcceptType : null,
+        httpMethod : null,
+
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
             logger.debug(this.id + ".constructor");
@@ -79,31 +89,47 @@ define([
         update: function (obj, callback) {
             logger.debug(this.id + ".update");
 
+            this.contextObj = obj;
 
+            this.httpMethod = 'GET';
+            if (this.requestData || this.staticRequestData) {
+                this.httpMethod = "POST";
+            }
 
+            this.doCorseCall();
 
-            var url = 'https://fonts.googleapis.com/css?family=Share';
-            var method = 'GET';
-            var xhr = this.createCORSRequest(method, url);
-
-            xhr.onload = function(e) {
-              console.log("Success: "+xhr.response);
-            };
-
-            xhr.onerror = function(e) {
-              console.log("Error: "+e);
-            };
-
-            xhr.send();
-
-
-
-
-            //this._contextObj = obj;
-            //this._resetSubscriptions();
-
+            this._resetSubscriptions();
             console.log("Hi I'm there!");
             callback();
+        },
+
+        doCorseCall : function()    {
+            var xhr = this.createCORSRequest(this.httpMethod, this.staticUrl);
+
+            this.staticAcceptType && xhr.setRequestHeader("Accept", this.staticAcceptType);
+
+            xhr.onload = dojoLang.hitch(this, function(e) {
+              console.log("Success: "+xhr.response);
+              if (this.responseData)    {
+                  this.contextObj.set(this.responseData, xhr.response);
+              }
+            });
+
+            xhr.onerror = dojoLang.hitch(this, function(e) {
+              console.log("Error: "+e);
+            });
+
+            if (this.requestData || this.staticRequestData) {
+                this.staticContentType && xhr.setRequestHeader("Content-Type", this.staticContentType);
+                if (requestData)    {
+                    xhr.send(this.contextObj.get(requestData));
+                } if (staticRequestData) {
+                    xhr.send(staticRequestData);
+                }
+            } else {
+                xhr.send();
+            }
+
         },
 
         createCORSRequest : function(method, url) {
@@ -121,9 +147,6 @@ define([
           }
           return xhr;
         },
-
-
-
 
         processRequest: function(e) {
             console.log(e);
@@ -167,28 +190,28 @@ define([
 
             // When a mendix object exists create subscribtions.
             if (this._contextObj) {
-                var objectHandle = mx.data.subscribe({
-                    guid: this._contextObj.getGuid(),
-                    callback: dojoLang.hitch(this, function (guid) {
-                        //this._updateRendering();???
-                    })
-                });
+                // var objectHandle = mx.data.subscribe({
+                //     guid: this._contextObj.getGuid(),
+                //     callback: dojoLang.hitch(this, function (guid) {
+                //         this._updateRendering();???
+                //     })
+                // });
 
                 var attrHandle = mx.data.subscribe({
                     guid: this._contextObj.getGuid(),
-                    attr: this.backgroundColor,
+                    attr: this.requestData,
                     callback: dojoLang.hitch(this, function (guid, attr, attrValue) {
-                        //this._updateRendering();???
+                        this.doCorseCall();
                     })
                 });
 
-                var validationHandle = mx.data.subscribe({
-                    guid: this._contextObj.getGuid(),
-                    val: true,
-                    callback: dojoLang.hitch(this, this._handleValidation)
-                });
+                // var validationHandle = mx.data.subscribe({
+                //     guid: this._contextObj.getGuid(),
+                //     val: true,
+                //     callback: dojoLang.hitch(this, this._handleValidation)
+                // });
 
-                this._handles = [ objectHandle, attrHandle, validationHandle ];
+                this._handles = [ attrHandle ];
             }
         }
     });

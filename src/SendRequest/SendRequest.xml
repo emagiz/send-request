@@ -6,24 +6,54 @@
     <icon />
 
     <properties>
-        <property key="backgroundColor" type="attribute">
-            <caption>Background Color</caption>
-            <category>Appearance</category>
-            <description>The background color of the widget.</description>
+        <property key="entity" type="entity" required="true">
+            <caption>Request entity</caption>
+            <category>1) General</category>
+            <description>The entity to use for data in either request or response.</description>
+        </property>
+        <property key="staticUrl" type="string" required="true">
+            <caption>Static url</caption>
+            <category>1) General</category>
+            <description>This attribute will contain the url to be used for sending the requests.</description>
+        </property>
+        <property key="staticRequestData" type="string" required="false">
+            <caption>Static request data</caption>
+            <category>2) Request</category>
+            <description>When this attribute is not empty it will send a request to the configured url with the data
+            contained in this attribute. Request method it would mean the request will become a POST request also.
+            Leaving this empty will send a request with the GET http method. Only string type attributes can be
+            used right now.</description>
+        </property>
+        <property key="requestData" type="attribute" entityProperty="entity" required="false">
+            <caption>Request data attribute</caption>
+            <category>2) Request</category>
+            <description>When this attribute is not empty it will send a request to the configured url with the data
+            contained in this attribute. Request method it would mean the request will become a POST request also.
+            Leaving this empty will send a request with the GET http method. Only string type attributes can be
+            used right now. When the entity is changed and this field is filled it will send the contents of this field
+            to the configured url.</description>
             <attributeTypes>
                 <attributeType name="String" />
             </attributeTypes>
         </property>
-        <property key="messageString" type="string" required="true" defaultValue="">
-            <caption>Message</caption>
-            <category>Appearance</category>
-            <description>The message visible within the widget.</description>
+        <property key="staticContentType" type="string" defaultValue="text/plain">
+            <caption>Request content type</caption>
+            <category>2) Request</category>
+            <description>Request content type (default = text/plain)</description>
         </property>
-        <property key="mfToExecute" type="microflow" required="false" defaultValue="">
-            <caption>Microflow</caption>
-            <category>Behavior</category>
-            <description>The microflow to execute on click.</description>
-            <returnType type="Boolean" />
+        <property key="staticAcceptType" type="string" defaultValue="text/plain">
+            <caption>Request accept type</caption>
+            <category>2) Request</category>
+            <description>Request content type (default = text/plain)</description>
+        </property>
+        <property key="responseData" type="attribute" entityProperty="entity" required="false">
+            <caption>Response data attribute</caption>
+            <category>3) Response</category>
+            <description>When this attribute is not empty it will put the response text into this attribute. Only string
+            attributes are supported right now.</description>
+            <attributeTypes>
+                <attributeType name="String" />
+            </attributeTypes>
         </property>
     </properties>
 </widget>
