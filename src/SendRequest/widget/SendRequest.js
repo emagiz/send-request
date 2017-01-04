@@ -55,7 +55,7 @@ define([
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handles: null,
-        _contextObj: null,
+        contextObj: null,
         _alertDiv: null,
         _readOnly: false,
 
@@ -68,6 +68,7 @@ define([
         staticContentType : null,
         staticAcceptType : null,
         httpMethod : null,
+        requestTrigger: null,
 
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
@@ -104,36 +105,50 @@ define([
         },
 
         doCorseCall : function()    {
-            var xhr = this.createCORSRequest(this.httpMethod, this.staticUrl);
+			if (this.contextObj)	{
+				var foundTrigger = this.requestTrigger && this.contextObj.get(this.requestTrigger);
+				if (foundTrigger || this.requestTrigger == null) {
 
-            this.staticAcceptType && xhr.setRequestHeader("Accept", this.staticAcceptType);
+					var xhr = this.createCORSRequest(this.httpMethod, this.staticUrl);
 
-            xhr.onload = dojoLang.hitch(this, function(e) {
-              console.log("Success: "+xhr.response);
-              if (this.responseData)    {
-                  this.contextObj.set(this.responseData, xhr.response);
-              }
-            });
+					this.staticAcceptType && xhr.setRequestHeader("Accept", this.staticAcceptType);
 
-            xhr.onerror = dojoLang.hitch(this, function(e) {
-              console.log("Error: "+e);
-            });
+					xhr.onload = dojoLang.hitch(this, function(e) {
+					  console.log("Success: "+xhr.response);
+					  if (this.responseData)    {
+						  this.contextObj.set(this.responseData, xhr.response);
+					  }
+					});
 
-            if (this.requestData || this.staticRequestData) {
-                this.staticContentType && xhr.setRequestHeader("Content-Type", this.staticContentType);
+					xhr.onerror = dojoLang.hitch(this, function(e) {
+					  console.log("Error: "+e);
+					});
 
-                if (this.requestData)    {
-                    var data = this.contextObj.get(this.requestData);
-                    if (data)   {
-                        xhr.send(data);
-                    }
-                }
-                if (this.staticRequestData) {
-                    xhr.send(this.staticRequestData);
-                }
-            } else {
-                xhr.send();
-            }
+					if (this.requestData || this.staticRequestData) {
+						this.staticContentType && xhr.setRequestHeader("Content-Type", this.staticContentType);
+
+						if (this.requestData)    {
+							var data = this.contextObj.get(this.requestData);
+							if (data)   {
+								try {
+									xhr.send(data);
+								} catch (e) {}
+							}
+						}
+						if (this.staticRequestData) {
+							try {
+								xhr.send(this.staticRequestData);
+							} catch (e) {}
+						}
+						this.requestTrigger && this.contextObj.set(this.requestTrigger, false);
+					} else {
+						try {
+							xhr.send();
+						} catch (e) {}
+						this.requestTrigger && this.contextObj.set(this.requestTrigger, false);
+					}
+				}
+			}
 
         },
 
@@ -194,7 +209,7 @@ define([
             this._unsubscribe();
 
             // When a mendix object exists create subscribtions.
-            if (this._contextObj) {
+            if (this.contextObj && this.requestTrigger) {
                 // var objectHandle = mx.data.subscribe({
                 //     guid: this._contextObj.getGuid(),
                 //     callback: dojoLang.hitch(this, function (guid) {
@@ -203,8 +218,8 @@ define([
                 // });
 
                 var attrHandle = mx.data.subscribe({
-                    guid: this._contextObj.getGuid(),
-                    attr: this.requestData,
+                    guid: this.contextObj.getGuid(),
+                    attr: this.requestTrigger,
                     callback: dojoLang.hitch(this, function (guid, attr, attrValue) {
                         this.doCorseCall();
                     })

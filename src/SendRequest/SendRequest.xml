@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <widget id="SendRequest.widget.SendRequest" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
     <name>SendRequest</name>
-    <description>Will send a request when the page loads</description>
+    <description>Will send a request when the page loads or when the trigger attribute is set to true (on load and on change)</description>
 
     <icon />
 
@@ -20,20 +20,32 @@
             <caption>Static request data</caption>
             <category>2) Request</category>
             <description>When this attribute is not empty it will send a request to the configured url with the data
-            contained in this attribute. Request method it would mean the request will become a POST request also.
-            Leaving this empty will send a request with the GET http method. Only string type attributes can be
-            used right now.</description>
+contained in this attribute. Request method it would mean the request will become a POST request also.
+Leaving this empty will send a request with the GET http method. Only string type attributes can be
+used right now.</description>
         </property>
         <property key="requestData" type="attribute" entityProperty="entity" required="false">
             <caption>Request data attribute</caption>
             <category>2) Request</category>
             <description>When this attribute is not empty it will send a request to the configured url with the data
-            contained in this attribute. Request method it would mean the request will become a POST request also.
-            Leaving this empty will send a request with the GET http method. Only string type attributes can be
-            used right now. When the entity is changed and this field is filled it will send the contents of this field
-            to the configured url.</description>
+contained in this attribute. Request method it would mean the request will become a POST request also.
+Leaving this empty will send a request with the GET http method. Only string type attributes can be
+used right now. When the entity is changed and this field is filled it will send the contents of this field
+to the configured url.</description>
             <attributeTypes>
                 <attributeType name="String" />
+            </attributeTypes>
+        </property>
+        <property key="requestTrigger" type="attribute" entityProperty="entity" required="false">
+            <caption>Request trigger attribute</caption>
+            <category>2) Request</category>
+            <description>When this attribute is not empty it will send a request to the configured url with the data
+contained in this attribute. Request method it would mean the request will become a POST request also.
+Leaving this empty will send a request with the GET http method. Only string type attributes can be
+used right now. When the entity is changed and this field is filled it will send the contents of this field
+to the configured url.</description>
+            <attributeTypes>
+                <attributeType name="Boolean" />
             </attributeTypes>
         </property>
         <property key="staticContentType" type="string" defaultValue="text/plain">
@@ -50,7 +62,7 @@
             <caption>Response data attribute</caption>
             <category>3) Response</category>
             <description>When this attribute is not empty it will put the response text into this attribute. Only string
-            attributes are supported right now.</description>
+attributes are supported right now.</description>
             <attributeTypes>
                 <attributeType name="String" />
             </attributeTypes>
