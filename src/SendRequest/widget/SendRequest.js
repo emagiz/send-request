@@ -69,6 +69,7 @@ define([
         staticAcceptType : null,
         httpMethod : null,
         requestTrigger: null,
+        responseMicroflow: null,
 
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
@@ -104,6 +105,7 @@ define([
             callback();
         },
 
+
         doCorseCall : function()    {
 			if (this.contextObj)	{
 				var foundTrigger = this.requestTrigger && this.contextObj.get(this.requestTrigger);
@@ -119,11 +121,21 @@ define([
 						  this.contextObj.set(this.responseData, xhr.response);
 					  }
 					});
+                    
+                    // Add response processing by an optional microflow.
+                    xhr.onloadend = dojoLang.hitch(this, function(e){
+                    if (this.responseMicroflow){
+                    mx.data.action({
+                        params       : {
+                            actionname : this.responseMicroflow,
+                            applyto     : "selection",
+                            guids       : [this.contextObj.getGuid()]
 
-					xhr.onerror = dojoLang.hitch(this, function(e) {
-					  console.log("Error: "+e);
-					});
-
+                            }
+                        });
+                    }
+                    });
+                    
 					if (this.requestData || this.staticRequestData) {
 						this.staticContentType && xhr.setRequestHeader("Content-Type", this.staticContentType);
 
