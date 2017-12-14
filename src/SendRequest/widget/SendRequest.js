@@ -124,17 +124,26 @@ define([
                     
                     // Add response processing by an optional microflow.
                     xhr.onloadend = dojoLang.hitch(this, function(e){
-                    if (this.responseMicroflow){
-                    mx.data.action({
-                        params       : {
-                            actionname : this.responseMicroflow,
-                            applyto     : "selection",
-                            guids       : [this.contextObj.getGuid()]
+					  if (this.responseMicroflow){
+						var action = {
+						  params: {
+							actionname : this.responseMicroflow,
+							applyto    : "selection",
+							guids      : [this.contextObj.getGuid()]
+						  }
+						}
+					 
+						if (!mx.version || mx.version && 7 > parseInt(mx.version.split(".")[ 0 ], 10)) {
+							action.store = {
+								caller: this.mxform,
+							};
+						} else {
+							action.origin = this.mxform;
+						}
 
-                            }
-                        });
-                    }
-                    });
+						mx.data.action(action, this);
+					  }
+					});
                     
 					if (this.requestData || this.staticRequestData) {
 						this.staticContentType && xhr.setRequestHeader("Content-Type", this.staticContentType);
